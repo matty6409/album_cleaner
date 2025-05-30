@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "album-cleaner"
+version = "0.1.0"
+description = ""
+authors = ["febmatt008 <febmatt008@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+python-magic = "^0.4.27"
+opencc-python-reimplemented = "^0.1.7"
+openai = "^1.82.0"
+pydantic = "^2.11.5"
+natsort = "^8.4.0"
+langchain = "^0.3.25"
+langchain-openai = "^0.3.18"
+pyyaml = "^6.0.2"
+tqdm = "^4.67.1"
+streamlit = "^1.45.1"
+mutagen = "^1.47.0"
+langchain-community = "^0.3.24"
+
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.5"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
