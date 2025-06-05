@@ -15,7 +15,7 @@ src_dir = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(src_dir))
 
 from application.interfaces.repositories.file_repository_interface import FileRepositoryInterface
-from infrastructure.persistence.file_repository import FileRepository
+from infrastructure.repositories.file_repository import FileRepository
 
 
 class TestFileRepository:

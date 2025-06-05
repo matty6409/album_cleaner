@@ -1,17 +1,17 @@
 # Album Cleaner
 
-A CLI and GUI tool to clean and align music file names in album directories using LLMs (via LangChain and Perplexity/DeepSeek). This tool processes music albums in `[Singer Name] Album Name` format, uses Spotify API for official album/track information, and LLM for intelligent mapping.
+A CLI tool to clean and align music file names in album directories using LLMs (via Perplexity and DeepSeek). This tool processes music albums in `[Singer Name] Album Name` format, uses Spotify API for official album/track information, and LLM for intelligent mapping.
 
 ## Features
 
-- **Clean Architecture**: Separation of application logic from infrastructure concerns
-- **Service Abstractions**: Easily swappable implementations for LLM, music services, etc.
-- **Spotify Integration**: Official album and track information retrieval
-- **LLM Intelligence**: Uses LangChain with Perplexity and DeepSeek models for filename cleaning
-- **Language Support**: English and Traditional Chinese (preserves Chinese characters in song names)
+- **Clean Architecture**: Separation of concerns with domain, application, and infrastructure layers
+- **Service Abstractions**: Swappable implementations for LLM providers, music services, etc.
+- **Spotify Integration**: Official album and track information retrieval with fallback
+- **LLM Integration**: Perplexity and OpenRouter DeepSeek models for intelligent filename mapping
+- **Language Support**: English and Traditional Chinese support with character preservation
 - **Processing Modes**: Copy to new directory or in-place renaming
 - **Modern CLI**: Clean command-line interface with comprehensive options
-- **Robust Error Handling**: Fallback to LLM-only cleaning when Spotify fails
+- **Robust Error Handling**: Graceful fallback to LLM-only mode when Spotify fails
 - **Comprehensive Logging**: Detailed logging to `album_cleaner.log`
 
 ## Architecture
@@ -22,18 +22,28 @@ The project follows clean architecture principles with clear separation of conce
 src/
 ├── application/           # Application Layer (Business Logic)
 │   ├── interfaces/        # Abstract service interfaces
-│   └── use_cases/         # Use case orchestrators
-├── domain/                # Domain Layer (Business Entities)
-│   └── entities/          # Album, Track entities, Language enum
-├── infrastructure/        # Infrastructure Layer (External Concerns)
-│   ├── llm/               # LLM implementations
-│   ├── music/             # Music service implementations
-│   ├── prompts/           # Prompt loading implementations
-│   ├── file/              # File operation implementations
-│   ├── config/            # Configuration
-│   └── logging/           # Logging utilities
-└── presentation/          # Presentation Layer (UI)
-    └── app.py             # Command-line interface
+│   │   ├── repositories/  # Repository interfaces
+│   │   └── services/     # Service interfaces (LLM, prompts, etc.)
+│   ├── services/         # Application services
+│   └── use_cases/        # Use case orchestrators
+├── domain/               # Domain Layer (Business Entities)
+│   └── entities/         # Album, Track entities, Language enum
+├── infrastructure/       # Infrastructure Layer (External Concerns)
+│   ├── config/          # Configuration and settings
+│   ├── factories/       # Service factories for DI
+│   ├── logging/         # Logging utilities
+│   ├── repositories/     # File repository implementation
+│   └── services/        # Service implementations
+│       ├── llm_services/     # LLM provider implementations
+│       ├── music_services/   # Music service implementations
+│       └── prompt_loaders/   # Prompt loading implementations
+├── presentation/        # Presentation Layer (UI)
+│   └── app.py          # Command-line interface
+├── prompts/            # YAML prompt templates
+└── tests/             # Test suite
+    ├── test_data/    # Sample albums for testing
+    ├── unit/         # Unit tests
+    └── notebook/     # Jupyter notebooks for examples
 ```
 
 ## Setup

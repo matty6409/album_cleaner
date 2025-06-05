@@ -5,7 +5,7 @@ from infrastructure.services.llm_services.openrouter_deepseek_llm_service import
 from infrastructure.services.music_services.spotify_song_name_service import SpotifySongNameService
 from infrastructure.services.music_services.enhanced_spotify_song_name_service import EnhancedSpotifySongNameService
 from infrastructure.services.prompt_loaders.yaml_prompt_loader import YamlPromptLoader
-from infrastructure.persistence.file_repository import FileRepository
+from infrastructure.repositories.file_repository import FileRepository
 from infrastructure.config.settings import Settings
 from infrastructure.logging.logger import logger
 

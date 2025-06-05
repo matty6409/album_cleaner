@@ -1,6 +1,6 @@
 import os
 from typing import Optional, List
-from infrastructure.persistence.file_repository import FileRepository
+from infrastructure.repositories.file_repository import FileRepository
 from infrastructure.logging.logger import logger
 from domain.entities.models import Album, Track
 from infrastructure.services.llm_services.perplexity_llm_service import PerplexityLLMService

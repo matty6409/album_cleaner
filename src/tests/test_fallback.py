@@ -38,7 +38,7 @@ def test_fallback_workflow():
     from infrastructure.services.prompt_loaders.yaml_prompt_loader import YamlPromptLoader
     from infrastructure.services.llm_services.openrouter_deepseek_llm_service import OpenRouterDeepSeekLLMService
     from infrastructure.services.music_services.spotify_song_name_service import SpotifySongNameService
-    from infrastructure.persistence.file_repository import FileRepository
+    from infrastructure.repositories.file_repository import FileRepository
     from application.use_cases.album_cleaner_use_case import AlbumCleanerUseCase
     from domain.entities.models import ProcessingOptions, Language
     
