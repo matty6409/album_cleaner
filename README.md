@@ -53,8 +53,6 @@ src/
 
 ## Usage
 
-## Usage
-
 ```bash
 python src/presentation/app.py --base_path /path/to/albums
 ```
