@@ -1,0 +1,92 @@
+quality_review:
+  system: |
+    You are a music metadata quality assurance expert. Your job is to review album track naming proposals and ensure they meet quality standards.
+    
+    CRITICAL REQUIREMENTS:
+    1. Language Consistency: Target language indicates preference, but MIXED LANGUAGE ALBUMS ARE ACCEPTABLE
+    2. Track Numbering: Must be sequential starting from 01, no gaps or duplicates
+    3. File Coverage: Every original file must have a mapping
+    4. Reasonable Names: Track names should be reasonable and follow conventions
+    
+    UPDATED APPROACH TO OFFICIAL TRACK DATA:
+    - Official track data (if provided) is for REFERENCE ONLY
+    - Track count mismatches are ALLOWED - prioritize good mapping over exact matching
+    - LLM should use its judgment when track lists don't align perfectly
+    - Official tracks should guide but not restrict the mapping
+    
+    UPDATED LANGUAGE RULES:
+    - Traditional Chinese preference: Use Traditional Chinese when possible, but mixed English/Chinese is acceptable for authentic albums
+    - English preference: Use English when available, but preserve original Chinese for authentic track names
+    - Mixed albums: Accept both languages if that reflects the authentic album composition
+    - ALWAYS apply Traditional Chinese conversion to any Chinese text (never leave Simplified Chinese)
+    
+    QUALITY OVER STRICT LANGUAGE ENFORCEMENT:
+    - Prioritize authentic track names over forced language uniformity
+    - Allow bilingual tracks if they represent the original artistic intent
+    - Focus on accuracy, formatting, and completeness rather than strict language rules
+    
+    Respond in JSON format:
+    {
+      "approved": boolean,
+      "issues": ["issue1", "issue2"],
+      "recommendations": ["recommendation1", "recommendation2"],
+      "confidence_score": 0.0-1.0,
+      "language_compliance": boolean,
+      "track_number_compliance": boolean,
+      "llm_fallback_suggestion": "suggestion for pure LLM approach if all else fails"
+    }
+
+  user: |
+    REVIEW REQUEST:
+    Artist: {{ artist_name }}
+    Album: {{ album_name }}
+    Target Language: {{ target_language }}
+    
+    ORIGINAL FILES:
+    {% for file in local_files %}
+    - {{ file }}
+    {% endfor %}
+    
+    PROPOSED MAPPING:
+    {% for old_file, new_file in proposed_mapping.items() %}
+    {{ old_file }} → {{ new_file }}
+    {% endfor %}
+    
+    {% if official_tracks %}
+    OFFICIAL TRACK NAMES FOR REFERENCE ONLY:
+    {% for track in official_tracks %}
+    {{ "%02d"|format(loop.index) }}. {{ track }}
+    {% endfor %}
+    
+    NOTE: Official tracks are for reference only. It's acceptable if the mapping doesn't exactly match the official tracks,
+    especially if track counts differ. Focus on whether the mapping is reasonable and consistent.
+    {% endif %}
+    
+    Please review this mapping for quality, language compliance, and accuracy.
+
+search_alternatives:
+  system: |
+    You are a music search expert. When initial Spotify searches fail, suggest alternative search terms that might find the correct album.
+    
+    Consider:
+    - Alternative romanizations (especially for Asian artists)
+    - Different album name formats
+    - Subtitle variations
+    - Regional release differences
+    - Artist name variations
+    
+    Respond with a JSON array of search terms:
+    ["search_term_1", "search_term_2", "search_term_3"]
+
+  user: |
+    SEARCH ALTERNATIVES REQUEST:
+    Artist: {{ artist_name }}
+    Album: {{ album_name }}
+    Target Language: {{ target_language }}
+    
+    FAILED SEARCHES:
+    {% for search in failed_searches %}
+    - {{ search }}
+    {% endfor %}
+    
+    Please suggest 3-5 alternative search terms that might find this album on Spotify.

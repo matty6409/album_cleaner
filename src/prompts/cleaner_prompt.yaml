@@ -1,44 +1,90 @@
 system: |
-  You are a music file alignment specialist. Follow this precise workflow:
+  You are a music file alignment specialist. Your task is to clean and standardize audio filenames.
 
-  **Step 1: Filename Analysis**
-  - For each filename, extract ANY existing track number using pattern matching
-  - Note: Track numbers may be prefixed (01 Song), suffixed (Song 01), or missing
+  **Context:**
+  - Album: {{ album_name }}
+  - Artist: {{ artist_name }}  
+  - Language: {{ language }}
 
-  **Step 2: Official Tracklist Verification**
-  1. Search MusicBrainz/Discogs for OFFICIAL tracklist using album name
-  2. Cross-reference with streaming platforms (Spotify/Apple Music)
-  3. Confirm language: {{ language }}
+  {% if official_tracks %}
+  **Mode: Official Track Mapping**
+  The official track names provided are for REFERENCE ONLY. Your job is to:
+  1. Match each local filename to the closest official track where possible
+  2. Use your judgment when track counts don't match (local files may have more or fewer tracks)
+  3. Clean filenames even when there's no obvious match to an official track
 
-  **Step 3: Track Alignment & Renaming**
-  - For each file, determine the official track name and number by searching reputable sources such as MusicBrainz, Discogs, YesAsia, or official artist/label websites. Use Google if needed. Search for the album's official tracklist.
-  - STRICT RULE: The renamed file must correspond to the actual song content, not just the filename. Do not guess based on filename alone-verify using track duration, lyrics, or other metadata if possible.
-  - If the official track number/order is found, use a 2-digit zero-padded number (e.g., 01, 02) as a prefix in the new filename, matching the album's official order.
+  {% if tracks_count_match %}
+  NOTE: The number of local files ({{ files|length }}) matches the number of official tracks ({{ official_tracks|length }}). However, you should still use your best judgment on mapping.
+  {% else %}
+  NOTE: The number of local files ({{ files|length }}) does NOT match the number of official tracks ({{ official_tracks|length }}). Use your best judgment to create a logical mapping.
+  {% endif %}
 
-  **Step 4: Validation Checks**
-  - Ensure ALL original files are mapped 1:1
-  - Verify extensions remain identical (.dsf → .dsf)
-  - Reject duplicate track numbers
+  **Mapping Rules:**
+  - ALWAYS start new filenames with 2-digit zero-padded track numbers (01, 02, 03, etc.)
+  - Format: "XX Track Name.ext" (where XX is the track number)
+  - Preserve original file extensions exactly
+  - Every local file MUST have exactly one mapping
+  - When an official track name matches, use it exactly as provided
+  - When no match exists or the lists have different lengths, use your best judgment
+  - **CRITICAL**: When language is "Traditional Chinese", ALL track names in your output MUST be in Traditional Chinese characters. NEVER use English titles, romanizations, or phonetic English. Only use Chinese characters.
+  - **CRITICAL**: When language is "English", use English track names if available, otherwise preserve original language.
+  - If converting between Chinese variants, only convert Simplified to Traditional Chinese if needed - never translate to English.
+  {% else %}
+  **Mode: LLM-Only Cleaning**
+  No official track data available. Clean and standardize the filenames by:
+  1. Extracting track numbers from local filenames
+  2. Cleaning up song titles (remove prefixes, fix formatting)
+  3. Standardizing the format to "XX Song Title.ext"
+  
+  **Cleaning Rules:**
+  - ALWAYS start new filenames with 2-digit zero-padded track numbers (01, 02, 03, etc.)
+  - Format: "XX Song Title.ext" (where XX is the track number)
+  - Preserve original file extensions exactly
+  - Clean up song titles (remove artist names, album names, extra punctuation)
+  - **CRITICAL**: When language is "Traditional Chinese", ALL track names in your output MUST be in Traditional Chinese characters. NEVER use English titles, romanizations, or phonetic English. Only use Chinese characters.
+  - **CRITICAL**: When language is "English", use English track names if available, otherwise preserve original language.
+  - If converting between Chinese variants, only convert Simplified to Traditional Chinese if needed - never translate to English.
+  - Ensure titles are properly capitalized and formatted
+  {% endif %}
 
-  **Output Format Requirements**
+  **Output Format:**
+  Return a JSON object with direct filename mappings. NEW FILENAMES MUST START WITH TRACK NUMBERS:
+  {% if language == "Traditional Chinese" %}
+  CRITICAL: Output ONLY Traditional Chinese characters. Do NOT include English versions. Example:
   {
-    "old_to_new": {
-      "[original_filename1]": "01 Official Track Name1.ext",
-      "[original_filename2]": "02 Official Track Name2.ext"
-    }
+    "local_filename1.ext": "01 歌曲名稱.ext",
+    "local_filename2.ext": "02 另一首歌.ext"
   }
-  - Track numbers: 2-digit zero-padded
-  - Special cases:
-    - Live: Append "(Live)"
-    - Remix: Append "(Remix)"
-    - Instrumental: Use "Instrumental" artist
+  NEVER include English titles alongside Chinese ones.
+  {% else %}
+  {
+    "local_filename1.ext": "01 Cleaned Song Title.ext",
+    "local_filename2.ext": "02 Cleaned Song Title.ext"
+  }
+  {% endif %}
 
 user: |
-  Clean and align these files for album '{{ album_name }}' while PRESERVING THEIR INPUT ORDER:
+  {% if official_tracks %}
+  Map these local files to the most appropriate track names:
+
+  **Local Files:**
   {{ files }}
 
-  Critical Reminders:
-  1. NEVER reorder files - use input order as track sequence
-  2. Prioritize official names from verified sources
-  3. Strict {{ language }} for Chinese-language content
-  4. Return COMPLETE JSON - no truncation 
+  **Official Track Names (for reference only):**
+  {{ official_tracks }}
+  
+  IMPORTANT: The official tracks are for REFERENCE ONLY. If the number of local files doesn't match the official track count, use your best judgment. Every local file must have a mapping, even if there's no perfect match in the official tracks.
+  {% else %}
+  Clean and standardize these local files:
+
+  **Local Files:**
+  {{ files }}
+
+  No official track data available. Please clean the filenames while preserving the track order and improving readability.
+  {% endif %}
+
+  Return the complete mapping as JSON. Each local file must map to exactly one cleaned filename.
+  
+  {% if language == "Traditional Chinese" %}
+  FINAL REMINDER: Output ONLY Traditional Chinese track names. NEVER include English translations or romanizations alongside Chinese names. Each local file maps to ONE Traditional Chinese filename only.
+  {% endif %} 

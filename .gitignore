@@ -1,6 +1,9 @@
 # Environment variables
 .env
 .env.*
+.cache
+.vscode
+.editorconfig
 
 # Python
 __pycache__/
@@ -23,3 +26,6 @@ build/
 
 # OS specific
 .DS_Store
+
+src/tests
+docs
